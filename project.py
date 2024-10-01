@@ -14,8 +14,6 @@ df = pd.read_csv(file_path)
 
 # Display the first few rows of the XFrame
 #print(df.head())
-
-
 #####OUTLIER ANALYSIS
 df_centered = df - df.mean()
 df_standardized = pd.DataFrame(scaler.fit_transform(df_centered), columns=df_centered.columns)
@@ -142,7 +140,7 @@ plt.show()
 
 corr = np.corrcoef(Y.T)
 sb.heatmap(corr,annot=True)
-"""
+
 fig, ax = plt.subplots(2,2)
 
 bins, value_counts = np.unique(X[:,-1], return_counts=True)
@@ -166,12 +164,18 @@ ax[1][0].set_xlabel(r'Age')
 ax[1][0].set_ylabel(r'Smokes')
 ax[1][0].set_title('Size = platelets, color = Sex')
 
+color2 = ['red' if d == 0 else 'blue' for d in df["DEATH_EVENT"]]
+
+ax[1][0].scatter(df["time"], df["DEATH_EVENT"], c=color2, s=10)
+ax[1][0].set_xlabel(r'follow up period')
+ax[1][0].set_ylabel(r'died')
+ax[1][0].set_title('Size = platelets, color = Sex')
 
 
 float_formatter = "{:.2f}".format
 np.set_printoptions(formatter={'float_kind':float_formatter})
 
-"""
+
 
 
 plt.show()
