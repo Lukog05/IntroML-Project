@@ -6,14 +6,13 @@ import scipy.linalg as linalg
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 
-# Replace 'file_path.csv' with the actual path to your CSV file
+
+#Dataset preparation
 file_path = 'heart_failure_clinical_records_dataset.csv'
 scaler = StandardScaler()
-# Read the CSV file into a Pandas XFrame
 df = pd.read_csv(file_path)
 
-# Display the first few rows of the XFrame
-#print(df.head())
+
 #####OUTLIER ANALYSIS
 df_centered = df - df.mean()
 df_standardized = pd.DataFrame(scaler.fit_transform(df_centered), columns=df_centered.columns)
@@ -31,8 +30,11 @@ plt.suptitle('Histogram of Features for Normality Check')
 plt.show()
 
 
+# Correlation Matrix
 corr = df.corr()
-#sb.heatmap(corr,annot=True)
+sb.heatmap(corr,annot=True)
+
+## Preparing for the PCA, by converting to a numpy array and separating our target feature from the rest
 X = df.to_numpy()
 y = X[:, -1]
 X = X[:, 0:-1]
@@ -41,16 +43,16 @@ N = X.shape[0]
 #center data
 Y = X - np.ones((N,1)) * X.mean(axis=0)
 
-# 1. Standardize the data (optional, but recommended)
+# Standardize the data
 
 X_std = scaler.fit_transform(X)  # Standardized X
 
-# 2. Apply PCA
-pca = PCA(n_components=12)  # Number of components to keep (e.g., 2 for 2D)
+# Apply PCA
+pca = PCA(n_components=12)  # Number of components to keep
 X_pca = pca.fit_transform(X_std)
 
 
-
+#Convert back to a pandas DF,as it is easier to plot things
 components_df = pd.DataFrame(pca.components_, columns=df.columns[:-1])
 components_df.T.plot(kind='bar', figsize=(12, 6), legend=False)
 plt.title('Principal Components Feature Importance')
@@ -128,21 +130,12 @@ plt.xticks(rotation=90)
 plt.show()
 
 
-
-
-
-
-
-
-
-
-
-
-corr = np.corrcoef(Y.T)
-sb.heatmap(corr,annot=True)
+#corr = np.corrcoef(Y.T)
+#sb.heatmap(corr,annot=True)
 
 fig, ax = plt.subplots(2,2)
 
+### Some interesting plots
 bins, value_counts = np.unique(X[:,-1], return_counts=True)
 ax[0][0].bar(bins,value_counts)
 ax[0][0].set_xlabel(r'Died or not during follow-up period')
@@ -174,8 +167,6 @@ ax[1][0].set_title('Size = platelets, color = Sex')
 
 float_formatter = "{:.2f}".format
 np.set_printoptions(formatter={'float_kind':float_formatter})
-
-
 
 
 plt.show()
