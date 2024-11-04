@@ -9,6 +9,7 @@ import warnings
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.decomposition import PCA
+from scipy.stats import ttest_rel, t
 
 # Box plot comparing model errors
 def plot_model_comparison(results_df):
@@ -249,6 +250,46 @@ def evaluate_models_with_shared_splits(X, y, K1=10, K2=10):
     
     return results_df
 
+
+# Perform paired t-tests and calculate confidence intervals
+def paired_t_tests(results_df):
+    # Extract errors from folds only
+    ridge_errors = results_df['ridge_error'][:-2]  # Exclude mean and std rows
+    ann_errors = results_df['ann_error'][:-2]
+    baseline_errors = results_df['baseline_error'][:-2]
+
+    # Pairwise comparisons
+    comparisons = {
+        'Ridge vs ANN': (ridge_errors, ann_errors),
+        'Ridge vs Baseline': (ridge_errors, baseline_errors),
+        'ANN vs Baseline': (ann_errors, baseline_errors)
+    }
+    
+    results = {}
+    for label, (errors1, errors2) in comparisons.items():
+        # Calculate t-test
+        t_stat, p_value = ttest_rel(errors1, errors2)
+        
+        # Calculate mean difference and standard error of the difference
+        mean_diff = np.mean(np.array(errors1) - np.array(errors2))
+        std_error = np.std(np.array(errors1) - np.array(errors2), ddof=1) / np.sqrt(len(errors1))
+        
+        # Calculate confidence interval
+        confidence_level = 0.95
+        t_critical = t.ppf((1 + confidence_level) / 2, df=len(errors1) - 1)
+        conf_interval = (mean_diff - t_critical * std_error, mean_diff + t_critical * std_error)
+        
+        # Store results
+        results[label] = {
+            'Mean Difference': mean_diff,
+            'p-value': p_value,
+            'Confidence Interval': conf_interval
+        }
+    
+    return results
+
+
+
 # Load and prepare data
 file_path = 'heart_failure_clinical_records_dataset.csv'
 df = pd.read_csv(file_path)
@@ -286,3 +327,15 @@ plot_error_trends(results_table)
 plot_hyperparameters(results_table)
 plot_error_distributions(results_table)
 plt.show()
+
+
+# Run the paired t-tests
+test_results = paired_t_tests(results_table)
+
+# Print results
+print("\nPaired T-Test Results (Comparing Model Performance)\n")
+for comparison, result in test_results.items():
+    print(f"{comparison}:")
+    print(f"  Mean Difference: {result['Mean Difference']:.4f}")
+    print(f"  p-value: {result['p-value']:.4f}")
+    print(f"  95% Confidence Interval: {result['Confidence Interval']}\n")
