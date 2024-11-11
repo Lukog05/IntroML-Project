@@ -115,7 +115,7 @@ def evaluate_models_with_shared_splits(X, y, K1=10, K2=10):
     Returns errors and optimal parameters for each fold.
     """
     # Parameters for models
-    lambda_values = np.logspace(-4, 4, 20)
+    lambda_values = np.logspace(-4, 4, 40)
     hidden_units = [1, 2, 4, 8, 12, 32, 64, 128, 256]
     
     # Initialize storage for results
@@ -301,8 +301,8 @@ df_standardized = pd.DataFrame(scaler.fit_transform(df_centered),
                              columns=df_centered.columns)
 #df_standardized = df
 # Prepare features and target
-X = df_standardized.drop(['DEATH_EVENT', 'platelets'], axis=1).to_numpy()
-y = df_standardized['platelets'].to_numpy()
+X = df_standardized.drop(['DEATH_EVENT', 'serum_sodium'], axis=1).to_numpy()
+y = df_standardized['serum_sodium'].to_numpy()
 
 
 #Calculate PCA
