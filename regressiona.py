@@ -33,7 +33,7 @@ n_components = np.where(cumulative_variance > 0.85)[0][0] + 1
 X_pca = X_pca[:, :n_components]
 
 # Find the best Ridge regression model using the reduced PCA components
-lambda_values = np.logspace(-4, 4, 20)
+lambda_values = np.logspace(-4, 4, 40)
 kf = KFold(n_splits=10, shuffle=True, random_state=42)
 mean_errors = []
 
@@ -105,3 +105,20 @@ plt.title('Total Effect of Original Features on Platelets Count')
 plt.xlabel('Effect Size')
 plt.tight_layout()
 plt.show()
+
+
+# Plot MSE vs lambda values
+plt.figure(figsize=(10, 6))
+plt.semilogx(lambda_values, mean_errors, 'b-', lw=2)
+plt.plot(lambda_values[best_lambda_idx], mean_errors[best_lambda_idx], 'r*', markersize=15, 
+         label=f'Best λ = {best_lambda:.4f}')
+plt.xlabel('λ (Alpha)')
+plt.ylabel('Mean Squared Error')
+plt.title('Ridge Regression: MSE vs Regularization Parameter (λ)')
+plt.grid(True)
+plt.legend()
+plt.show()
+
+# Print the best lambda and its corresponding MSE
+print(f"\nBest λ value: {best_lambda:.4f}")
+print(f"Corresponding MSE: {mean_errors[best_lambda_idx]:.4f}")
